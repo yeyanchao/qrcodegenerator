@@ -1,0 +1,36 @@
+1.4.103
+- changed close button position
+
+1.4.102
+- fixed the image paths but ran into a few other problems, will try to fix during the day
+
+1.4.000
+- jquery updated
+- colorbox updated and set as default
+- righclicking all images will now generate a QR code of their url, not the target url
+
+1.3.402
+- whatever it was it seems to be fixed now. https working again!
+
+1.3.401 - 2010/09/07
+- something weird going on, colorbox not working, reverted to version 1.3.30
+
+1.3.400 - 2010/09/06
+- added support for https pages
+
+1.3 - 2010/09/04
+- added Colorbox (http://colorpowered.com/colorbox/) option, an alternative to opening the code in a new tab
+
+1.2 - 2010/08/27
+- added options page for selecting QR code size
+- added possibility to create QR code from the current page
+
+1.1
+- minor bugfix
+
+1.0
+- added support for line feeds and some special characters when using selected text
+- didn't intend to make this version 1.0 - rather 0.11 - but there was something weird with the extension uploader and I had to change it, 0.2 didn't work either. oh well.
+
+0.1
+- initial release

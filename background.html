@@ -1,0 +1,109 @@
+<script>
+
+var qrstatus = "donothing";
+var qrString = null;
+var qrsz = "undefined";
+var qrCaption = "QR Code";
+var link = "undefined";
+var selection = "undefined";
+var page = "undefined";
+var image = "undefined";
+var showMethod = "undefined";
+
+function resetvariables() {
+	qrstatus = "donothing";
+	qrString = null;
+	qrCaption = "Selected text";
+	link = "undefined";
+	selection = "undefined";
+	page = "undefined";
+	qrsz = localStorage["qrcode_size"];
+	showMethod = localStorage["method"];
+}
+	
+function setupQR(info,tab) {
+	// sets up (some of) the strings needed to pass to the qr generator api
+	qrsz = localStorage["qrcode_size"];
+	showMethod = localStorage["method"];
+	if (!qrsz)
+		qrsz = "230";
+		
+	if (showMethod == "colorbox") {
+		chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
+		if (request.greeting == "infoplz")
+			sendResponse({qrstr: qrString, qrcap: qrCaption, qrsize: qrsz, status: qrstatus});
+		if (request.greeting == "clear")
+			resetvariables();
+		});
+	}
+
+	if (!showMethod)
+		showMethod = "colorbox";
+	
+	if (!info.selectionText || info.selectionText.length == 0) {
+		selection = "false";
+	}	else selection = "true";
+	
+	if (!info.linkUrl || info.linkUrl.length == 0) {
+		link = "false";
+	}	else link = "true";
+	
+	// added 1.3.403
+	if (!info.srcUrl || info.srcUrl.length == 0) {
+		image = "false";
+	}	else image = "true";
+		
+	if (selection == "false" && link == "false" && image == "false") {
+		page = "true";
+	}
+	
+	if (selection == "true") {
+		qrString = info.selectionText;
+	}
+	if (link == "true") { 
+		qrString = info.linkUrl; 
+		qrCaption = qrString;
+	}
+	if (page == "true") {
+		qrString = info.pageUrl;
+		qrCaption = qrString;
+	}
+	if (image == "true") {
+		qrString = info.srcUrl;
+		qrCaption = qrString;
+	}
+	
+	qrString = qrString.replace(/\n/gi,"%0A");
+	qrString = qrString.replace("\"","%22");
+	qrString = qrString.replace(/&/gi,"%26");
+	qrString = qrString.replace("\+","%2B");
+	qrString = qrString.replace(/#/gi,"%23");
+	
+	if (showMethod == "newtab") {
+		chrome.tabs.create({url: "http://chart.apis.google.com/chart?cht=qr&chs=" + qrsz + "x" + qrsz + "&chl=" + qrString});
+	}
+
+	if (showMethod == "colorbox") {
+		qrstatus = "qrplz";
+		chrome.tabs.getSelected(null, function(tab) {
+			chrome.tabs.executeScript(tab.id, {file: "qrcode.js"});
+		});
+	}
+}
+
+// gets the preferred options from localstorage
+qrsz = localStorage["qrcode_size"];
+showMethod = localStorage["method"];
+
+firstrun = localStorage["first"];
+// check if the extension has been ran before, if not, create default settings
+if ( !firstrun ) {
+	localStorage["first"] = "false";
+    localStorage["qrcode_size"] = "230";
+	localStorage["method"] = "colorbox";
+}
+
+// generates a context menu and launches setupQR() every time an item is rightclicked
+chrome.contextMenus.create({title: "Generate QR Code", contexts:["link","selection","page","image"], onclick: setupQR});
+
+</script>

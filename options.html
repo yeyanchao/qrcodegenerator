@@ -1,0 +1,135 @@
+<html>
+<head><title>QR Code Options</title></head>
+<script type="text/javascript">
+
+// return the value of the radio button that is checked
+// return an empty string if none are checked, or
+// there are no radio buttons
+function getCheckedValue(radioObj) {
+	if(!radioObj)
+		return "";
+	var radioLength = radioObj.length;
+	if(radioLength == undefined)
+		if(radioObj.checked)
+			return radioObj.value;
+		else
+			return "";
+	for(var i = 0; i < radioLength; i++) {
+		if(radioObj[i].checked) {
+			return radioObj[i].value;
+		}
+	}
+	return "";
+}
+
+// set the radio button with the given value as being checked
+// do nothing if there are no radio buttons
+// if the given value does not exist, all the radio buttons
+// are reset to unchecked
+function setCheckedValue(radioObj, newValue) {
+	if(!radioObj)
+		return;
+	var radioLength = radioObj.length;
+	if(radioLength == undefined) {
+		radioObj.checked = (radioObj.value == newValue.toString());
+		return;
+	}
+	for(var i = 0; i < radioLength; i++) {
+		radioObj[i].checked = false;
+		if(radioObj[i].value == newValue.toString()) {
+			radioObj[i].checked = true;
+		}
+	}
+}
+
+// Saves options to localStorage.
+function save_options() {
+  // save qr code size
+  var select = document.getElementById("size");
+  var size = select.children[select.selectedIndex].value;
+  localStorage["qrcode_size"] = size;
+  
+  // select display method
+  var favmethod = getCheckedValue(document.forms["displaymethod"]);
+  //alert(favorite);
+  if (favmethod == "0") {
+	localStorage["method"] = "newtab";
+	//alert("newtab saved");
+  }
+  if (favmethod == "1") {
+	localStorage["method"] = "colorbox";
+	//alert("colorbox saved");
+  }
+
+  // Update status to let user know options were saved.
+  var status = document.getElementById("status");
+  status.innerHTML = "Settings saved!";
+  setTimeout(function() {
+    status.innerHTML = "";
+  }, 1000);
+}
+
+// Restores select box state to saved value from localStorage.
+function restore_options() {
+  var favsize = localStorage["qrcode_size"];
+  if (!favsize) { // If no settings are stored create defaults --- v1.3.403
+    localStorage["qrcode_size"] = "230";
+	favsize = "230";
+	//return;
+  }
+  var select = document.getElementById("size");
+  for (var i = 0; i < select.children.length; i++) {
+    var child = select.children[i];
+    if (child.value == favsize) {
+      child.selected = "true";
+      break;
+    }
+  }
+  
+  var favmethod = localStorage["method"];
+  if (!favmethod) { // If no settings are stored create defaults --- v1.3.403
+	localStorage["method"] = "colorbox";
+	favmethod = "colorbox";
+	//return;
+  }
+  if (favmethod == "newtab") {
+	setCheckedValue(document.forms['displaymethod'].elements['dmvalue'], '0');
+	//alert("newtab!");
+  }
+  if (favmethod == "colorbox") {
+	setCheckedValue(document.forms['displaymethod'].elements['dmvalue'], '1');
+	//alert("colorbox!");
+  }
+}
+
+</script>
+
+<body onload="restore_options()">
+
+QR Code Size:
+<select id="size">
+ <option value="100">Small - 100x100</option>
+ <option value="160">Medium - 160x160</option>
+ <option value="230">Large - 230x230 (default)</option>
+ <option value="400">Extra Large - 400x400</option>
+</select>
+
+<br><br>
+
+Open in:<br>
+<form name="displaymethod" method="get" action="" onsubmit="return false;">
+	<input type="radio" name="dmvalue" value="0" id="number0">New tab<br>
+	<input type="radio" name="dmvalue" value="1" id="number1">Colorbox<br>
+</form>
+
+<br>
+
+<button onclick="save_options()">Save</button>
+<button onclick="window.close()">Close</button>
+
+<br>
+
+<div id="status"></div>
+
+</body>
+</html>
